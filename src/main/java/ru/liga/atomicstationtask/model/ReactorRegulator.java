@@ -15,7 +15,7 @@ import java.util.Map;
 public class ReactorRegulator {
 
     private static final int LOWER_LIMIT = 450;
-    private static final int MAX_IMMERSION_CHANGE = 10; // Максимальное изменение погружения за раз
+    private static final int BUFFER_SIZE_LIMIT = 5;
 
     @Getter private final Map<Reactor, List<Integer>> powerRecords;
     private volatile boolean running;
@@ -27,37 +27,35 @@ public class ReactorRegulator {
         this.reloading = false;
     }
 
-    public void stop() {
-        running = false;
-    }
-
     public void addPowerRecord(Reactor reactor, int power) {
-        if (!running || reloading) return;
         powerRecords.putIfAbsent(reactor, new ArrayList<>());
         List<Integer> records = powerRecords.get(reactor);
         records.add(power);
-        if (powerRecords.get(reactor).size() > MAX_IMMERSION_CHANGE) {
+
+        if (records.size() > BUFFER_SIZE_LIMIT) {
             handleOverload(reactor);
         }
+        workImitation();
     }
 
-    @Async
-    @Scheduled(fixedRate = 3000)
+    @Scheduled(fixedRate = 2500)
     public void regulateReactors() {
         if (!running || reloading) return;
+
         for (Map.Entry<Reactor, List<Integer>> entry : powerRecords.entrySet()) {
             Reactor reactor = entry.getKey();
             List<Integer> records = entry.getValue();
+            regulateReactor(reactor);
             if (!records.isEmpty()) {
                 records.removeFirst();
             }
-            regulateReactor(reactor);
         }
     }
 
     private void regulateReactor(Reactor reactor) {
         int newPercent = calculateImmersionPercent(reactor.getCurrentPower());
         reactor.setGraphiteRodImmersion(newPercent);
+        workImitation();
     }
 
     private int calculateImmersionPercent(int currentPower) {
@@ -68,8 +66,10 @@ public class ReactorRegulator {
     }
 
     private void handleOverload(Reactor reactor) {
+        if (!running || reloading) return;
         System.err.println("Сервер регулировки перегружен! Регулирование приостановлено.");
         System.out.println("Перезагрузка системы...");
+
         reloading = true;
         reactor.setGraphiteRodImmersion(0);
         try {
@@ -77,8 +77,17 @@ public class ReactorRegulator {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
+
         powerRecords.clear();
         System.out.println("Система перезагружена. Записи о мощности очищены.");
         reloading = false;
+    }
+
+    private void workImitation() {
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

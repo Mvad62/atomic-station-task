@@ -21,8 +21,7 @@ public class ReactorDataCollector {
         this.reactor.start();
     }
 
-    @Async
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 2000)
     public void printReactorData() {
         if (reactor.getState() == ReactorState.DESTROYED) {
             System.out.println("Нет данных, потеряно соединение");
@@ -31,14 +30,11 @@ public class ReactorDataCollector {
         int currentPower = reactor.getCurrentPower();
         int currentTemperature = reactor.getCurrentTemperature();
         int percentage = reactor.getGraphiteRod().getImmersionPercentage();
-        System.out.printf("Данные собраны: Мощность: %d Вт," +
-                        " Температура: %d °C," +
-                        " Погружение стержней: %s%n",
+        System.out.printf("Данные собраны: Мощность: %d Вт, Температура: %d °C, Погружение стержней: %s%n",
                 currentPower, currentTemperature, percentage);
     }
 
-    @Async
-    @Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 1500)
     public void sendReactorDataToRegulator() {
         regulator.addPowerRecord(reactor, reactor.getCurrentPower());
     }
