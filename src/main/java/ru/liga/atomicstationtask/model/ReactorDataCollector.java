@@ -1,41 +1,25 @@
 package ru.liga.atomicstationtask.model;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import ru.liga.atomicstationtask.model.entity.GraphiteRod;
 import ru.liga.atomicstationtask.model.entity.Reactor;
-import ru.liga.atomicstationtask.model.enums.ReactorState;
 
+@Slf4j
 @Service
 public class ReactorDataCollector {
 
     private final Reactor reactor;
-    private final ReactorRegulator regulator;
+    private final OldReactorRegulator regulator;
 
-    @Autowired
-    public ReactorDataCollector(ReactorRegulator regulator) {
+    public ReactorDataCollector(Reactor reactor, OldReactorRegulator regulator) {
+        this.reactor = reactor;
         this.regulator = regulator;
-        this.reactor = new Reactor(new GraphiteRod());
-        this.reactor.start();
+        reactor.start();
     }
 
     @Scheduled(fixedRate = 2000)
-    public void printReactorData() {
-        if (reactor.getState() == ReactorState.DESTROYED) {
-            System.out.println("Нет данных, потеряно соединение");
-            return;
-        }
-        int currentPower = reactor.getCurrentPower();
-        int currentTemperature = reactor.getCurrentTemperature();
-        int percentage = reactor.getGraphiteRod().getImmersionPercentage();
-        System.out.printf("Данные собраны: Мощность: %d Вт, Температура: %d °C, Погружение стержней: %s%n",
-                currentPower, currentTemperature, percentage);
-    }
-
-    @Scheduled(fixedRate = 1500)
     public void sendReactorDataToRegulator() {
-        regulator.addPowerRecord(reactor, reactor.getCurrentPower());
+        regulator.receivePowerData(reactor, reactor.getCurrentPower());
     }
 }

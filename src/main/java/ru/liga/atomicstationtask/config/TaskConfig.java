@@ -12,13 +12,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 @EnableScheduling
 public class TaskConfig {
 
-    // Настройка пула потоков для асинхронных задач
-    @Bean(name = "taskExecutor")
-    public ThreadPoolTaskExecutor taskExecutor() {
+    @Bean
+    public ThreadPoolTaskExecutor regulatorTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);  // Количество потоков в пуле
-        executor.setMaxPoolSize(10);  // Максимальное количество потоков
-        executor.setQueueCapacity(25);  // Вместимость очереди задач
+        executor.setCorePoolSize(10); // Минимальное количество потоков
+        executor.setMaxPoolSize(20);  // Максимальное количество потоков
+        executor.setQueueCapacity(500); // Размер очереди
+        executor.setThreadNamePrefix("async-");
         executor.initialize();
         return executor;
     }

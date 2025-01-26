@@ -1,9 +1,15 @@
 package ru.liga.atomicstationtask.model.entity;
 
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.Trigger;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 // Класс, представляющий графитовый стержень, используемый для регулирования мощности реактора
-@Getter public class GraphiteRod {
+@Getter
+@Component
+public class GraphiteRod {
 
     /* Процент погружения стержней в реактор
        Напрямую влияет на мощность реактора
