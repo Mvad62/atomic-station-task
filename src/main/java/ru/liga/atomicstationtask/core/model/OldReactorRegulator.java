@@ -6,6 +6,26 @@ import ru.liga.atomicstationtask.core.model.entity.Reactor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Регулятор реактора старого образца.
+ * В связи с особенностями работы регулятора, необходимо учитывать следующие нюансы:
+ * <ul>
+ *     <li>Необходимо регулярно отсылать данные для стабильной работы реактора и регулятора.</li>
+ *     <li>Если данные после перезагрузки не поступят в течение 500 мс, то регулятор выйдет из строя.</li>
+ *     <li>Обработка данных занимает неопределенный период времени, но после обработки идет перезагрузка,
+ *         которая занимает 2 секунды (или 2000 мс).</li>
+ *     <li>Если новые данные поступят во время обработки предыдущих или во время перезагрузки,
+ *         то регулятор выйдет из строя.</li>
+ * </ul>
+ *
+ * Принцип работы следующий:
+ * <ol>
+ *     <li>Поступили новые данные</li>
+ *     <li>Обработка (n времени)</li>
+ *     <li>Перезагрузка (2 сек)</li>
+ *     <li>Ожидание (500 мс)</li>
+ * </ol>
+ */
 @Component
 public class OldReactorRegulator {
 
@@ -19,9 +39,10 @@ public class OldReactorRegulator {
         this.running = true;
         this.lock = new ReentrantLock();
         this.reactor = reactor;
+        reactor.start();
     }
 
-    public void receivePowerData(Reactor reactor, int power) {
+    public void receivePowerData(int power) {
         System.out.println("Поступили новые данные, идет обработка...");
         isUpdated = true;
         if (!isRegulatorActive()) {
@@ -34,7 +55,7 @@ public class OldReactorRegulator {
         }
 
         try {
-            regulateReactor(reactor, power);
+            regulateReactor(power);
             new Thread(this::restAndWaitForData).start();
             isUpdated = false;
             System.out.println("Данные обработаны, перезагрузка...");
@@ -51,7 +72,7 @@ public class OldReactorRegulator {
         return true;
     }
 
-    private void regulateReactor(Reactor reactor, int currentPower) {
+    private void regulateReactor(int currentPower) {
         int newImmersionPercent = calculateImmersionPercent(currentPower);
         reactor.setGraphiteRodImmersion(newImmersionPercent);
         imitateWork();
