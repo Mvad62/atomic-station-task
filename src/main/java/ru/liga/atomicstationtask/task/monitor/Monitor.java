@@ -1,4 +1,4 @@
-package ru.liga.atomicstationtask.monitor;
+package ru.liga.atomicstationtask.task.monitor;
 
 public interface Monitor {
 

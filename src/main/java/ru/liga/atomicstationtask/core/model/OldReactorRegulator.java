@@ -1,7 +1,7 @@
-package ru.liga.atomicstationtask.model;
+package ru.liga.atomicstationtask.core.model;
 
 import org.springframework.stereotype.Component;
-import ru.liga.atomicstationtask.model.entity.Reactor;
+import ru.liga.atomicstationtask.core.model.entity.Reactor;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

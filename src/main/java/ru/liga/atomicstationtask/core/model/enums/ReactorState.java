@@ -1,4 +1,4 @@
-package ru.liga.atomicstationtask.model.enums;
+package ru.liga.atomicstationtask.core.model.enums;
 
 public enum ReactorState {
 

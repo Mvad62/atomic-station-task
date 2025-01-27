@@ -1,8 +1,8 @@
-package ru.liga.atomicstationtask.model.entity;
+package ru.liga.atomicstationtask.core.model.entity;
 
 import lombok.Getter;
 import org.springframework.stereotype.Component;
-import ru.liga.atomicstationtask.model.enums.ReactorState;
+import ru.liga.atomicstationtask.core.model.enums.ReactorState;
 
 import java.util.Random;
 
@@ -90,7 +90,7 @@ public class Reactor implements Runnable {
     }
 
     private int calculateTemperature() {
-        return (int) (currentPower * 1.4 + 50 + RANDOM.nextInt(20) - 10);
+        return (int) (currentPower * 1.4 + RANDOM.nextInt(20) - 10);
     }
 
     public void setGraphiteRodImmersion(int immersionPercentage) {

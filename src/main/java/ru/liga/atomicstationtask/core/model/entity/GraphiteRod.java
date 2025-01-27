@@ -1,10 +1,7 @@
-package ru.liga.atomicstationtask.model.entity;
+package ru.liga.atomicstationtask.core.model.entity;
 
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.Trigger;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 // Класс, представляющий графитовый стержень, используемый для регулирования мощности реактора
 @Getter
